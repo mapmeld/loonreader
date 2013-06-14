@@ -5,6 +5,7 @@
   - startup screen
   - sample text
   - word wrap
+  - pages
 
   Adapted from Adafruit's open source TFTLCD library
   Please read their comments below to ensure your TFTLCD library is ready to talk to the
@@ -17,6 +18,26 @@
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
+#include <stdint.h>
+#include <TouchScreen.h>
+
+// Touch screen library with X Y and Z (pressure) readings as well
+// as oversampling to avoid 'bouncing'
+// This demo code returns raw readings, public domain
+
+// These are the pins for the shield!
+#define YP A1  // must be an analog pin, use "An" notation!
+#define XM A2  // must be an analog pin, use "An" notation!
+#define YM 7   // can be a digital pin
+#define XP 6   // can be a digital pin
+
+#define MINPRESSURE 10
+#define MAXPRESSURE 1000
+
+// For better pressure precision, we need to know the resistance
+// between X+ and X- Use any multimeter to read it
+// For the one we're using, its 300 ohms across the X plate
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
 // The control pins for the LCD can be assigned to any digital or
 // analog pins...but using the analog pins allows Arduino to
@@ -51,6 +72,8 @@
 #define WHITE   0xFFFF
 
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+
+int page = 0;
 
 void setup(void) {
   Serial.begin(9600);
@@ -89,17 +112,46 @@ void setup(void) {
   // startup screen for 2.8 seconds
   startText();
   delay(2800);
-
-  // setRotation(1) for landscape mode
-  tft.setRotation(1);
   
-  // show text
-  bookText();
-
+  pinMode(13, OUTPUT);
 }
 
 void loop(void) {
 
+  if(page == 0){
+    // setRotation(1) for landscape mode
+    tft.setRotation(1);
+ 
+    // show text
+    page = 1;
+    bookText(1);
+  }
+  
+  // a point object holds x y and z coordinates
+  digitalWrite(13, HIGH);
+  Point p = ts.getPoint();
+  digitalWrite(13, LOW);
+
+  // if sharing pins, you'll need to fix the directions of the touchscreen pins
+  //pinMode(XP, OUTPUT);
+  pinMode(XM, OUTPUT);
+  pinMode(YP, OUTPUT);
+  //pinMode(YM, OUTPUT);
+  
+  // we have some minimum pressure we consider 'valid'
+  // pressure of 0 means no pressing!
+  if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+     //Serial.print("X = "); Serial.print(p.x);
+     //Serial.print("\tY = "); Serial.print(p.y);
+     //Serial.print("\tPressure = "); Serial.println(p.z);
+     
+     delay(100);
+     
+     // registering a touch
+     page++;
+     bookText(page);
+     delay(1500);
+  }
 }
 
 void startText() {
@@ -115,12 +167,18 @@ void startText() {
   tft.println("GitHub.com/mapmeld/loonreader");
 }
 
-void bookText() {
+void bookText(int loadpage) {
   tft.fillScreen(BLACK);
   tft.setCursor(8, 0);
   tft.setTextSize(2);
   tft.setTextColor(WHITE);
-  printText("The quick brown fox jumps over the lazy dog. Would you like to know more?");
+  if(loadpage <= 1){
+    printText("The quick brown fox jumps over the lazy dog. Would you like to know more?");
+  }
+  else{
+    Serial.print("I'm trying!");
+    printText("I had a dream once where moonlight turned toys to life, and we were in a mall, and they had a store full of stuffed tigers. Things did not go well.");
+  }
 }
 
 void printText(String text) {
