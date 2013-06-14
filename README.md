@@ -4,17 +4,17 @@ content to a GitHub repo.
 * Open hardware - based on the Arduino Uno board
 * Open source code (in Wiring, the language used to program Arduino)
 * Content updated directly from GitHub
-* 2.8" TFT Touch Shield (includes SD card holder) from Adafruit
+* 2.8" TFT Touch Shield (includes microSD card holder) from Adafruit
 
 The basic reader will have:
 
-* A 'master' branch, an Arduino sketch which controls the device
+* A 'code' branch, an Arduino sketch which controls the device
 * A 'content' branch, which contains text to be hard-coded into the Arduino program
-* A 'sync' branch to upload the latest code and content to the LoonReader
+* A 'sync' branch, with a script to upload the latest code and content to the LoonReader
 
 Future steps:
 
-* Use built-in SD card reader to store eBooks separate from the code
+* Use built-in microSD card reader to store content separate from the code
 * Add Flora GPS Shield from Adafruit, for:
 ** Controlling content by sun, stars, <a href="https://github.com/mapmeld/moon-phase">phase of the moon</a>
 ** Location-based stories and games
