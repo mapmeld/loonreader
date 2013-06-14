@@ -5,7 +5,6 @@
   - startup screen
   - sample text
   - word wrap
-  - pages
 
   Adapted from Adafruit's open source TFTLCD library
   Please read their comments below to ensure your TFTLCD library is ready to talk to the
@@ -20,9 +19,11 @@
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 #include <stdint.h>
 #include <TouchScreen.h>
+#include <SD.h>
 
 // Touch screen library with X Y and Z (pressure) readings as well
 // as oversampling to avoid 'bouncing'
+// This demo code returns raw readings, public domain
 
 // These are the pins for the shield!
 #define YP A1  // must be an analog pin, use "An" notation!
@@ -72,6 +73,11 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
+#define SD_CS 5 // Card select for shield use
+uint8_t         spi_save;
+File bookFile;
+String myBook;
+
 int page = 0;
 
 void setup(void) {
@@ -107,6 +113,31 @@ void setup(void) {
   }
 
   tft.begin(identifier);
+
+  // SD Card init
+  if (!SD.begin(SD_CS)) {
+    return;
+  }
+  spi_save = SPCR;
+
+  // re-open the file for reading:
+  bookFile = SD.open("test.txt");
+  if (bookFile) {
+    
+    // read from the file until there's nothing else in it:
+    myBook = "";
+    while (bookFile.available()) {
+   	myBook += char( bookFile.read() );
+    }
+    // close the file:
+    bookFile.close();
+  } else {
+  	// if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+  // reset pins so you can use touch screen
+  spi_save = 0;
+  SPCR = 0;
 
   // startup screen for 2.8 seconds
   startText();
@@ -175,8 +206,7 @@ void bookText(int loadpage) {
     printText("The quick brown fox jumps over the lazy dog. Would you like to know more?");
   }
   else{
-    Serial.print("I'm trying!");
-    printText("I had a dream once where moonlight turned toys to life, and we were in a mall, and they had a store full of stuffed tigers. Things did not go well.");
+    printText(myBook);
   }
 }
 
