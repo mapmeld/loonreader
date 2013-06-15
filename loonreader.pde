@@ -80,11 +80,11 @@ Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 uint8_t         spi_save;
 File root;
 File bookFile;
-String myBook;
 
 int page = 0;
 int lineLength = 24;
 int lineCount = 10;
+String progressWord;
 
 void setup(void) {
   Serial.begin(9600);
@@ -129,14 +129,16 @@ void setup(void) {
     // open first file for reading:
     //root = SD.open("/");
     //root.rewindDirectory();
-    bookFile = SD.open("BOOK.TXT"); //root.openNextFile();
+    bookFile = SD.open("BOOK.TXT");
+    progressWord = "" + char( bookFile.read() );
+    //root.openNextFile();
     //root.close();
     
     // read from the file until there's nothing else in it:
-    myBook = "";
-    while (bookFile.available() > 3976 && myBook.length() < lineLength * lineCount) {
-   	myBook += char( bookFile.read() );
-    }
+    //myBook = "";
+    //while (bookFile.available() > 3976 && myBook.length() < lineLength * lineCount) {
+      //myBook += char( bookFile.read() );
+    //}
     // close the file:
     //bookFile.close();
 
@@ -184,10 +186,6 @@ void loop(void) {
      page++;
      bookText(page);
   }
-  else{
-     Serial.println("no touch");
-     delay(100);
-  }
 }
 
 void startText() {
@@ -212,7 +210,53 @@ void bookText(int loadpage) {
     printText("The quick brown fox jumps over the lazy dog. Would you like to know more?");
   }
   else{
-    printText(myBook);
+    printTextFromFile();
+  }
+}
+
+void printTextFromFile() {
+  int printedLines = 0;
+  String progressLine = "";
+  int space = 32;
+  //spi_save = SPCR;
+  
+  //Serial.println( bookFile.available() );
+  
+  while ( bookFile.available() && printedLines < lineCount ){
+    // continuously add chars
+    
+    char readChar = bookFile.read();
+        
+    progressWord += char( readChar );
+    if(readChar == space){
+      // hit a space, add it to the line
+      progressLine += progressWord;
+      progressWord = "";
+    }
+    if(progressWord.length() >= lineLength){
+      // no spaces, already on new line
+      //spi_save = 0;
+      //SPCR = 0;
+      tft.println( progressWord );
+      progressWord = "";
+      printedLines++;
+    }
+    if(progressLine.length() + progressWord.length() >= lineLength){
+      // going to need a new line, print old progressLine now
+      //spi_save = 0;
+      //SPCR = 0;
+      tft.println( progressLine );
+      progressLine = "";
+      printedLines++;
+    }
+    //spi_save = SPCR;
+  }
+  if(printedLines < lineCount && (progressLine.length() > 0 || progressWord.length() > 0 )){
+    //spi_save = 0;
+    //SPCR = 0;
+    tft.println( progressLine + progressWord );
+    progressLine = "";
+    progressWord = "";
   }
 }
 
@@ -229,36 +273,8 @@ void printText(String text) {
           currentLine += text.charAt(k);
         }
         tft.println(currentLine);
-        //Serial.println("broke a line");
         printedLines++;
         i = j + 1;
-        if((j > text.length() || printedLines >= lineCount) && page > 1){
-          // reached end of text - load more of the book
-          //Serial.println("load more book");
-          
-    // open first file for reading:
-    //root = SD.open("/");
-    //root.rewindDirectory();
-    //bookFile = root.openNextFile();
-    //root.close();
-
-          myBook = "";
-          //SPCR = spi_save;
-          /*bookFile.close();
-          root = SD.open("/");
-          root.rewindDirectory();
-          bookFile = root.openNextFile();
-          root.close();
-          Serial.println("opened next");*/
-          while(bookFile.available() > 3976 && myBook.length() < lineLength * lineCount) {
-            Serial.println( bookFile.available() );
-   	    myBook += char( bookFile.read() );
-          }  
-
-          // reset pins so you can use touch screen
-          //spi_save = 0;
-          //SPCR = 0;
-        }
         break;
       }
       else if(j == i){
