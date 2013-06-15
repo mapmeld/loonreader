@@ -4,7 +4,10 @@
   Currently has:
   - startup screen
   - sample text
+  - reading text from SD card
   - word wrap
+  - pagination
+  - touch to see next page
 
   Adapted from Adafruit's open source TFTLCD library
   Please read their comments below to ensure your TFTLCD library is ready to talk to the
@@ -75,10 +78,13 @@ Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 #define SD_CS 5 // Card select for shield use
 uint8_t         spi_save;
+File root;
 File bookFile;
 String myBook;
 
 int page = 0;
+int lineLength = 24;
+int lineCount = 10;
 
 void setup(void) {
   Serial.begin(9600);
@@ -120,21 +126,20 @@ void setup(void) {
   }
   spi_save = SPCR;
 
-  // re-open the file for reading:
-  bookFile = SD.open("test.txt");
-  if (bookFile) {
+    // open first file for reading:
+    //root = SD.open("/");
+    //root.rewindDirectory();
+    bookFile = SD.open("BOOK.TXT"); //root.openNextFile();
+    //root.close();
     
     // read from the file until there's nothing else in it:
     myBook = "";
-    while (bookFile.available()) {
+    while (bookFile.available() > 3976 && myBook.length() < lineLength * lineCount) {
    	myBook += char( bookFile.read() );
     }
     // close the file:
-    bookFile.close();
-  } else {
-  	// if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
-  }
+    //bookFile.close();
+
   // reset pins so you can use touch screen
   spi_save = 0;
   SPCR = 0;
@@ -171,16 +176,17 @@ void loop(void) {
   // we have some minimum pressure we consider 'valid'
   // pressure of 0 means no pressing!
   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-     //Serial.print("X = "); Serial.print(p.x);
-     //Serial.print("\tY = "); Serial.print(p.y);
-     //Serial.print("\tPressure = "); Serial.println(p.z);
-     
-     delay(100);
+     Serial.print("X = "); Serial.print(p.x);
+     Serial.print("\tY = "); Serial.print(p.y);
+     Serial.print("\tPressure = "); Serial.println(p.z);
      
      // registering a touch
      page++;
      bookText(page);
-     delay(1500);
+  }
+  else{
+     Serial.println("no touch");
+     delay(100);
   }
 }
 
@@ -212,9 +218,9 @@ void bookText(int loadpage) {
 
 void printText(String text) {
   int i=0;
-  int lineLength = 24;
   int space = 32;
-  while(i < text.length() ){
+  int printedLines = 0;
+  while(i < text.length() && printedLines < lineCount ){
     for(int j=i+lineLength;j>=i;j--){
       if((j > text.length() ) || ( text.charAt(j) == space )){
         // insert line breaks, unless we are already at the last line of the text
@@ -223,7 +229,36 @@ void printText(String text) {
           currentLine += text.charAt(k);
         }
         tft.println(currentLine);
+        //Serial.println("broke a line");
+        printedLines++;
         i = j + 1;
+        if((j > text.length() || printedLines >= lineCount) && page > 1){
+          // reached end of text - load more of the book
+          //Serial.println("load more book");
+          
+    // open first file for reading:
+    //root = SD.open("/");
+    //root.rewindDirectory();
+    //bookFile = root.openNextFile();
+    //root.close();
+
+          myBook = "";
+          //SPCR = spi_save;
+          /*bookFile.close();
+          root = SD.open("/");
+          root.rewindDirectory();
+          bookFile = root.openNextFile();
+          root.close();
+          Serial.println("opened next");*/
+          while(bookFile.available() > 3976 && myBook.length() < lineLength * lineCount) {
+            Serial.println( bookFile.available() );
+   	    myBook += char( bookFile.read() );
+          }  
+
+          // reset pins so you can use touch screen
+          //spi_save = 0;
+          //SPCR = 0;
+        }
         break;
       }
       else if(j == i){
@@ -233,10 +268,11 @@ void printText(String text) {
           currentLine += text.charAt(k);
         }
         tft.println(currentLine);
+        printedLines++;
         i += lineLength + 1;
         break;
       }
-    }
+    }    
   }
 }
 
