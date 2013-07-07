@@ -16,6 +16,8 @@ Adafruit_GPS GPS(&mySerial);
 boolean usingInterrupt = false;
 void useInterrupt(boolean); // Func prototype keeps Arduino 0023 happy
 
+float tz = -4;  // Sets timezone to GMT -4 (US Eastern)
+
 float quadout[5];
 float mooneq[3];
 char south = 'S';
@@ -313,7 +315,6 @@ void printTime(float ftime){
 
 void checkSunMoon(){
   float mjd = getmjd(GPS.day, GPS.month, 2000 + GPS.year, 0.0);
-  float tz = -4;
   
   float glat = floor(GPS.latitude / 100);
   float minutes = floor( GPS.latitude - 100 * glat );
@@ -408,12 +409,6 @@ void checkSunMoon(){
     }
     else {
       Serial.println("neither rise nor set");
-      //if (above == true){
-      //  outstring += always_up + always_up;
-      //}
-      //else{
-      //  outstring += always_down + always_down;
-      //}
     }
   }
 
