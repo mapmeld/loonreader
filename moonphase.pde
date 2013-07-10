@@ -1,7 +1,7 @@
-// Adapted from "parsing" example
 
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
+#include <Time.h>
 
 // Connect the GPS Power pin to 5V
 // Connect the GPS Ground pin to ground
@@ -411,6 +411,75 @@ void checkSunMoon(){
       Serial.println("neither rise nor set");
     }
   }
+  
+  setTime( GPS.hour, GPS.minute, GPS.seconds, GPS.day, GPS.month, 2000 + GPS.year);
+  
+  float today = now( ) * 1.0;
+  moon_day( today );
 
   //Serial.println( outstring );
+}
+
+
+float GetFrac(float fr) {
+  return (fr - floor(fr));
+};
+
+float getJulian(float today) {
+    return ((today / 86400.0) + ( tz / 24.0 ) + 2440587.5);
+};
+
+float moon_day(float today) {
+    float Ko, T, T2, T3, Jo, Fo, Mo, Mi, Bi, oldJ;
+    float thisJD = getJulian( today );
+    float degToRad = 3.14159265 / 180.0;
+    Ko = floor((GPS.year + 100) * 12.3685);
+    T = (GPS.year + 100.5) / 100.0;
+    T2 = T * T;
+    T3 = T * T * T;
+    Jo = 2415020.0 + 29.0 * Ko;
+    Fo = 0.0001178 * T2 - 0.000000155 * T3 + (0.75933 + 0.53058868 * Ko) - (0.000837 * T + 0.000335 * T2);
+    Mo = 360.0 * (GetFrac(Ko * 0.08084821133)) + 359.2242 - 0.0000333 * T2 - 0.00000347 * T3;
+    Mi = 360.0 * (GetFrac(Ko * 0.07171366128)) + 306.0253 + 0.0107306 * T2 + 0.00001236 * T3;
+    Bi = 360.0 * (GetFrac(Ko * 0.08519585128)) + 21.2964 - (0.0016528 * T2) - (0.00000239 * T3);
+    float phase = 0;
+    float jday = 0;
+    while (jday < thisJD) {
+        float F = Fo + 1.530588 * phase;
+        float M5 = (Mo + phase * 29.10535608) * degToRad;
+        float M6 = (Mi + phase * 385.81691806) * degToRad;
+        float B6 = (Bi + phase * 390.67050646) * degToRad;
+        F -= 0.4068 * sin(M6) + (0.1734 - 0.000393 * T) * sin(M5);
+        F += 0.0161 * sin(2 * M6) + 0.0104 * sin(2 * B6);
+        F -= 0.0074 * sin(M5 - M6) - 0.0051 * sin(M5 + M6);
+        F += 0.0021 * sin(2 * M5) + 0.0010 * sin(2 * B6 - M6);
+        F += 0.5 / 1440.0;
+        oldJ = jday;
+        jday = Jo + 28.0 * phase + floor(F);
+        phase++;
+    }
+
+    // 29.53059 days per lunar month
+    float finalphase = (((thisJD - oldJ) / 29.53059));
+    
+    Serial.print(finalphase);
+    Serial.print(" = ");
+    
+    if ((finalphase <= 0.0625) || (finalphase > 0.9375)) {
+        Serial.println("New Moon");
+    } else if (finalphase <= 0.1875) {
+        Serial.println("1/4 Moon");
+    } else if (finalphase <= 0.3125) {
+        Serial.println("1/2 Moon");
+    } else if (finalphase <= 0.4375) {
+        Serial.println("3/4 Moon");
+    } else if (finalphase <= 0.5625) {
+        Serial.println("Full Moon");
+    } else if (finalphase <= 0.6875) {
+        Serial.println("3/4 Moon");
+    } else if (finalphase <= 0.8125) {
+        Serial.println("1/2 Moon");
+    } else if (finalphase <= 0.9375) {
+        Serial.println("1/4 Moon");
+    }
 }
