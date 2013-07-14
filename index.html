@@ -4,100 +4,107 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
     <title>LoonReader</title>
-    <link rel="stylesheet" type="text/css" media="all" href="bootstrap-mini.css"/>
+    <link rel="stylesheet" type="text/css" href="pure-min.css"/>
+    <link rel="stylesheet" type="text/css" href="layout.css"/>
   </head>
   <body>
-    <div class="container">
-      <div class="row">
-        <div class="span12">
-          <div class="hero-unit">
-            <img src="sideways.jpg" style="float:right;width:40%;"/>
-            <h1>LoonReader</h1>
-            <h3>A git eBook, using open hardware and software</h3>
-            <div style="clear:both;"></div>
+    <div class="content pure-g-r">
+      <div class="splash pure-u-1">
+        <div class="pure-g-r">
+          <div class="pure-u-1-3">
+            <div class="l-box splash-image">
+              <img src="http://loonreader.com/main.jpg" alt="Photo of the LoonReader">
+            </div>
+          </div>
+
+          <div class="pure-u-2-3">
+            <div class="l-box splash-text">
+              <h1 class="splash-head">
+                LoonReader
+              </h1>
+
+              <h2 class="splash-subhead">
+                An eReader with open hardware, software, and content
+              </h2>
+
+              <p>
+                <a href="https://github.com/mapmeld/loonreader" class="pure-button primary-button">Source Code</a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="span4">
-          <h3>An Experiment</h3>
-          <p>What books will people send me?</p>
-          <p>Is there a future for location-based storytelling?</p>
-          <p>If an eBook could take any shape, what would it look like?</p>
-          <p>What creatures appear during a full moon?</p>
+      
+      <div class="content pure-u-1">
+
+
+        <div class="posts pure-g">
+
+          <section class="post pure-u-1">
+            <header class="post-header">
+              <h2 class="post-title pure-u-1">An Experiment</h2>
+              <br/>
+            </header>
+
+            <div class="post-description pure-u-1">
+              <div style="width:25%;float:left;margin-right:5%;">
+                <img src="http://loonreader.com/inhand.jpg"/>
+              </div>
+              <div style="width:65%;float:left;">
+                <p>
+                  I write software. I design what users see, how to deliver it, how to change it.
+                </p>
+                <p>
+                  Hardware is something different.
+                  <a href="http://venturebeat.com/2013/06/28/hardware-is-hard/">Hardware is hard</a>.
+                </p>
+                <p>
+                  We need devices that tell stories, or even become part of a story. Not another tablet off of an assembly line.
+                </p>
+                <p>
+                  LoonReader starts off as an <a href="http://arduino.cc">Arduino</a> with a touchscreen cover.
+                </p>
+                <p>
+                  LoonReader's software and content will update from the internet, receiving new stories and changing how the device works.
+                </p>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+          </section>
         </div>
-        <div class="span8">
-          <!-- Photos -->
-          <img class="span3" src="main.jpg"/>
-          <img class="span3" src="outwindow1.jpg"/>
-          <img class="span3" src="outwindow2.jpg"/>
-          <img class="span2" src="inhand.jpg"/>
-          <img class="span2" src="inhand2.jpg"/>
+
+
+        <div class="posts pure-g">
+
+          <section class="post pure-u-1">
+            <header class="post-header">
+              <h2 class="post-title pure-u-1">GPS for location-based, sun-averse, and moon books</h2>
+              <br/>
+            </header>
+
+            <div class="post-description pure-u-1">
+              <img src="http://loonreader.com/outwindow1.jpg" style="width:20%;"/>
+              <img src="http://loonreader.com/outwindow2.jpg" style="width:20%;"/>
+              <div class="pure-u-1-2">
+                <p>
+                The Flora GPS receives GPS signals to determine LoonReader's coordinates. That means you can have stories which change based on your location. Or guides which take you from one place to another.
+                </p>
+                <p>
+                It's also possible to calculate time, position of the sun, and phase of the moon. So you can have a werewolf story whose ending isn't revealed until the full moon, or a story told by different animals during the day and night.
+                </p>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+          </section>
         </div>
+
       </div>
-      <div class="row">
-        <div class="span6">
-          <div class="well">
-            <h3>Pros</h3>
-            <ul>
-              <li>Open hardware and software</li>
-              <li>Change this repo, change your reader!</li>
-              <li>Send geek friends stories and challenges through pull requests</li>
-            </ul>
-          </div>
-        </div>
-        <div class="span6">
-          <div class="well">
-            <h3>Cons</h3>
-            <ul>
-              <li>Screen size</li>
-              <li>Power source</li>
-              <li>Updates through wired connection</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="span6">
-          <div class="well">
-            <h3>Hardware</h3>
-            <ul>
-              <li>Arduino Uno</li>
-              <li>2.8" TFT Touch Shield (contains microSD reader)</li>
-              <li>Flora GPS Sensor</li>
-              <li>Proto Shield</li>
-              <li>microSD Card</li>
-            </ul>
-          </div>
-        </div>
-        <div class="span6">
-          <div class="well">
-            <h3>Software & Content</h3>
-            <ul>
-              <li>
-                <a href="https://github.com/mapmeld/loonreader/tree/code">Arduino Sketch</a>
-              </li>
-              <li>
-                <a href="https://github.com/mapmeld/loonreader/tree/content">eBook Content</a>
-              </li>
-              <li>
-                <a href="https://github.com/mapmeld/loonreader/tree/sync">GitHub Sync Script</a>
-              </li>
-              <li>
-                <a href="https://github.com/mapmeld/loonreader/tree/gh-pages">LoonReader.com</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="footer">
-        <div class="span8">
-          <p>Nick Doiron - @mapmeld on <a href="http://twitter.com/mapmeld" target="_blank">Twitter</a> and <a href="https://github.com/mapmeld" target="_blank">GitHub</a></p>
-        </div>
-      </div>
-      <br/>
-      <br/>
-      <br/>
+      
+    </div>
+    <div>
+      <footer>
+        Nick Doiron - @mapmeld on <a href="http://twitter.com/mapmeld">Twitter</a> and <a href="https://github.com/mapmeld">GitHub</a>
+      </footer>
     </div>
   </body>
 </html>
